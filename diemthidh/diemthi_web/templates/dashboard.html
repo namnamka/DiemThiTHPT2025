@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Phân Tích Điểm Thi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f4f7f6; }
+        .chart-container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 2rem; height: 100%; }
+        .tab-content { padding-top: 1rem; }
+        .chart-wrapper { position: relative; height: 400px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-primary">Dashboard Phân Tích Điểm Thi</h1>
+            <a href="/" class="btn btn-secondary">Quay lại trang tra cứu</a>
+        </div>
+        
+        <ul class="nav nav-tabs" id="analyticsTab" role="tablist">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#general" role="tab">Thống kê chung</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#distribution" role="tab">Phổ điểm</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#name-analysis" role="tab">Phân tích Họ & Tên</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#birthdate-analysis" role="tab">Phân tích Ngày sinh</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#top-students" role="tab">Thí sinh tiêu biểu</a></li>
+        </ul>
+
+        <div class="tab-content" id="analyticsTabContent">
+
+            <!-- TAB 1: THỐNG KÊ CHUNG -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-12"><div class="chart-container"><h4 class="text-center">Điểm trung bình các môn</h4><div class="chart-wrapper"><canvas id="averageScoresChart"></canvas></div></div></div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-lg-12"><div class="chart-container"><h4 class="text-center">Thống kê số lượng điểm 10 theo môn</h4><div class="chart-wrapper"><canvas id="perfectScoresChart"></canvas></div></div></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PHỔ ĐIỂM -->
+            <div class="tab-pane fade" id="distribution" role="tabpanel">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 id="distributionChartTitle" class="mb-0">Phổ điểm</h4>
+                        <div class="form-inline"><label for="subjectSelector" class="mr-2">Chọn môn:</label><select class="form-control" id="subjectSelector"></select></div>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="distributionChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PHÂN TÍCH HỌ & TÊN -->
+            <div class="tab-pane fade" id="name-analysis" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6"><div class="chart-container"><h4 class="text-center">Top 10 Họ phổ biến</h4><div class="chart-wrapper"><canvas id="familyNamesChart"></canvas></div></div></div>
+                    <div class="col-lg-6"><div class="chart-container"><h4 class="text-center">Top 10 Tên phổ biến</h4><div class="chart-wrapper"><canvas id="firstNamesChart"></canvas></div></div></div>
+                </div>
+            </div>
+
+            <!-- TAB 4: PHÂN TÍCH NGÀY SINH (ĐÃ SỬA TIÊU ĐỀ) -->
+            <div class="tab-pane fade" id="birthdate-analysis" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-12"><div class="chart-container">
+                        <h4 class="text-center">Số lượng thí sinh theo Tháng sinh</h4>
+                        <div class="chart-wrapper"><canvas id="birthMonthChart"></canvas></div>
+                    </div></div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-lg-12"><div class="chart-container">
+                        <h4 class="text-center">Số lượng thí sinh theo Ngày sinh</h4>
+                        <div class="chart-wrapper"><canvas id="birthDayChart"></canvas></div>
+                    </div></div>
+                </div>
+            </div>
+
+            <!-- TAB 5: THÍ SINH TIÊU BIỂU -->
+            <div class="tab-pane fade" id="top-students" role="tabpanel">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Top 10 thí sinh điểm cao nhất</h4>
+                        <div class="form-inline"><label for="topStudentSelector" class="mr-2">Chọn khối:</label><select class="form-control" id="topStudentSelector"></select></div>
+                    </div>
+                    <div class="table-responsive"><table class="table table-striped table-hover"><thead><tr><th>#</th><th>Số báo danh</th><th>Họ và Tên</th><th>Tổng điểm</th></tr></thead><tbody id="topStudentsTableBody"></tbody></table></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+let distributionChart = null; 
+let allTopStudentsData = {}; 
+
+document.addEventListener('DOMContentLoaded', function() {
+    Promise.all([
+        fetch('/analytics-data').then(res => res.json()),
+        fetch('/top-students-all').then(res => res.json())
+    ]).then(([analytics, topStudents]) => {
+        renderGeneralAnalytics(analytics);
+        allTopStudentsData = topStudents;
+        setupTopStudentsTab();
+    }).catch(error => {
+        console.error('Lỗi khi tải dữ liệu dashboard:', error);
+    });
+});
+
+function renderGeneralAnalytics(analytics) {
+    renderBarChart('averageScoresChart', 'Điểm trung bình', analytics.average_scores);
+    renderBarChart('perfectScoresChart', 'Số lượng điểm 10', analytics.perfect_scores);
+    
+    const distributionData = analytics.score_distributions;
+    const subjectSelector = document.getElementById('subjectSelector');
+    if (subjectSelector) {
+        const subjects = Object.keys(distributionData);
+        if (subjects.length > 0) {
+            subjects.forEach(subject => { subjectSelector.innerHTML += `<option value="${subject}">${subject}</option>`; });
+            updateDistributionChart(subjects[0], distributionData);
+            subjectSelector.addEventListener('change', function() { updateDistributionChart(this.value, distributionData); });
+        } else {
+            renderNoDataMessage('distributionChart', 'Không có dữ liệu phổ điểm.');
+        }
+    }
+
+    renderPieChart('familyNamesChart', analytics.family_name_distribution);
+    renderPieChart('firstNamesChart', analytics.first_name_distribution);
+
+    // --- LOGIC VẼ BIỂU ĐỒ NGÀY SINH (ĐÃ SỬA LẠI NHÃN) ---
+    renderLineChart('birthMonthChart', 'Số lượng thí sinh', analytics.birth_month_analysis);
+    renderBarChart('birthDayChart', 'Số lượng thí sinh', analytics.birth_day_analysis);
+}
+
+// ... (Các hàm JavaScript còn lại giữ nguyên, không cần thay đổi)
+function setupTopStudentsTab() {
+    const selector = document.getElementById('topStudentSelector');
+    const tableBody = document.getElementById('topStudentsTableBody');
+    if(selector && tableBody){
+        const blocks = Object.keys(allTopStudentsData);
+        if (blocks.length > 0) {
+            blocks.forEach(block => { selector.innerHTML += `<option value="${block}">${block}</option>`; });
+            updateTopStudentsTable(blocks[0]);
+            selector.addEventListener('change', function() { updateTopStudentsTable(this.value); });
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Không có dữ liệu để hiển thị.</td></tr>';
+        }
+    }
+}
+function updateTopStudentsTable(block) {
+    const tableBody = document.getElementById('topStudentsTableBody');
+    const students = allTopStudentsData[block] || [];
+    tableBody.innerHTML = ''; 
+    if (students.length > 0) {
+        students.forEach((student, index) => {
+            tableBody.innerHTML += `<tr><td>${index + 1}</td><td>${student['Số báo danh']}</td><td>${student.HoTen}</td><td><strong>${student.TongDiem}</strong></td></tr>`;
+        });
+    } else {
+        tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Không có dữ liệu cho khối này.</td></tr>';
+    }
+}
+function updateDistributionChart(subject, allData) {
+    const chartData = allData[subject];
+    document.getElementById('distributionChartTitle').textContent = `Phổ điểm môn ${subject}`;
+    if (!distributionChart) {
+        const ctx = document.getElementById('distributionChart').getContext('2d');
+        distributionChart = new Chart(ctx, { type: 'bar', data: { datasets: [{ label: 'Số lượng thí sinh', backgroundColor: 'rgba(54, 162, 235, 0.6)' }] }, options: { scales: { y: { beginAtZero: true } }, responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+    }
+    distributionChart.data.labels = chartData.labels;
+    distributionChart.data.datasets[0].data = chartData.data;
+    distributionChart.update();
+}
+function renderLineChart(canvasId, label, chartData) {
+    if (!chartData || !chartData.data || chartData.data.length === 0) { renderNoDataMessage(canvasId, `Không có dữ liệu.`); return; }
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, { type: 'line', data: { labels: chartData.labels, datasets: [{ label: label, data: chartData.data, borderColor: 'rgb(255, 99, 132)', backgroundColor: 'rgba(255, 99, 132, 0.5)', tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+}
+function renderBarChart(canvasId, label, chartData) {
+    if (!chartData || !chartData.data || chartData.data.length === 0) { renderNoDataMessage(canvasId, `Không có dữ liệu.`); return; }
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, { type: 'bar', data: { labels: chartData.labels, datasets: [{ label: label, data: chartData.data, backgroundColor: 'rgba(75, 192, 192, 0.6)' }] }, options: { scales: { y: { beginAtZero: true } }, responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+}
+function renderPieChart(canvasId, chartData) {
+    if (!chartData || !chartData.data || chartData.data.length === 0) { renderNoDataMessage(canvasId, `Không có dữ liệu.`); return; }
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#E7E9ED', '#8DDF3C', '#F37E3B', '#3B8DF3'];
+    new Chart(ctx, { type: 'pie', data: { labels: chartData.labels, datasets: [{ data: chartData.data, backgroundColor: colors, hoverOffset: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
+}
+function renderNoDataMessage(canvasId, message) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '16px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#888';
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu & Quy đổi điểm thi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { max-width: 900px; margin-top: 30px; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .result-section { margin-top: 2rem; }
+        .loading-spinner { display: none; }
+        .table thead th { background-color: #007bff; color: white; }
+        .conversion-table td:first-child { font-weight: bold; }
+
+        /* CSS CHO BẢNG QUY ĐỔI */
+        #conversion-section h4 {
+            color: #28a745; 
+        }
+        .conversion-table thead th {
+            background-color: #28a745; 
+        }
+        .conversion-table tbody tr:hover {
+            background-color: #e9f5ec; 
+        }
+        .conversion-table td:last-child {
+            font-weight: bold;
+            color: #dc3545; 
+        }
+
+        /* --- CSS MỚI CHO NÚT "QUY ĐỔI" --- */
+        .btn-convert {
+            background-color: #17a2b8; /* Màu xanh ngọc */
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            text-decoration: none; /* Bỏ gạch chân */
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+        }
+
+        .btn-convert:hover {
+            background-color: #138496; /* Màu xanh ngọc đậm hơn khi hover */
+            color: white;
+            text-decoration: none;
+            transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
+        }
+        /* --- KẾT THÚC CSS MỚI --- */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Tra cứu & Quy đổi điểm thi</h1>
+        
+        <!-- Form tra cứu -->
+        <form id="search-form" class="form-inline justify-content-center">
+            <div class="form-group mb-2">
+                <label for="sbd" class="sr-only">Số báo danh</label>
+                <input type="text" class="form-control" id="sbd" placeholder="Nhập số báo danh" required>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2 ml-2">
+                <span class="loading-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Tìm kiếm
+            </button>
+        </form>
+
+        <!-- === NÚT MỚI ĐỂ ĐI ĐẾN DASHBOARD === -->
+        <div class="text-center mt-3 mb-3">
+            <a href="/dashboard" class="btn btn-outline-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+                    <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z"/>
+                </svg>
+                Xem Dashboard Phân Tích Toàn Cảnh
+            </a>
+        </div>
+        <!-- === KẾT THÚC NÚT MỚI === -->
+
+        <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+
+        <!-- Khu vực hiển thị kết quả -->
+        <div id="result-container" class="result-section" style="display: none;">
+            <!-- Điểm các môn -->
+            <div id="student-scores-section">
+                <h4 class="text-info">1. Điểm thi chi tiết</h4>
+                <div id="student-scores-table"></div>
+            </div>
+
+            <!-- Điểm các tổ hợp -->
+            <div id="combo-scores-section" class="mt-4">
+                <h4 class="text-info">2. Điểm các tổ hợp có thể xét tuyển</h4>
+                <table class="table table-striped">
+                    <thead><tr><th>Tổ hợp</th><th>Môn</th><th>Điểm</th><th>Hành động</th></tr></thead>
+                    <tbody id="combo-scores-body"></tbody>
+                </table>
+            </div>
+
+            <!-- Bảng quy đổi điểm -->
+            <div id="conversion-section" class="mt-4" style="display: none;">
+                <h4 class="text-success">3. Bảng điểm tương đương</h4>
+                <p>Điểm của các tổ hợp khác tương đương với <strong id="source-combo-info"></strong>:</p>
+                <table class="table table-hover conversion-table">
+                    <thead><tr><th>Tổ hợp</th><th>Điểm tương đương</th></tr></thead>
+                    <tbody id="conversion-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script>
+// JavaScript không cần thay đổi gì cả, giữ nguyên như cũ
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('search-form');
+    const sbdInput = document.getElementById('sbd');
+    const errorMessage = document.getElementById('error-message');
+    const resultContainer = document.getElementById('result-container');
+    const studentScoresTable = document.getElementById('student-scores-table');
+    const comboScoresBody = document.getElementById('combo-scores-body');
+    const conversionSection = document.getElementById('conversion-section');
+    const conversionBody = document.getElementById('conversion-body');
+    const sourceComboInfo = document.getElementById('source-combo-info');
+    const spinner = document.querySelector('.loading-spinner');
+
+    const tổHợpInfo = JSON.parse('{{ TỔ_HỢP | tojson | safe }}');
+
+    function showAlert(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+
+    function hideAlert() {
+        errorMessage.style.display = 'none';
+    }
+
+    searchForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideAlert();
+        resultContainer.style.display = 'none';
+        spinner.style.display = 'inline-block';
+
+        const formData = new FormData();
+        formData.append('sbd', sbdInput.value);
+
+        try {
+            const response = await fetch('/tra-cuu', { method: 'POST', body: formData });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Có lỗi xảy ra.');
+            }
+            
+            studentScoresTable.innerHTML = data.diem_cac_mon_html;
+            
+            comboScoresBody.innerHTML = '';
+            const sortedCombos = Object.entries(data.diem_to_hop).sort(([,a],[,b]) => b-a);
+
+            for (const [combo, score] of sortedCombos) {
+                const row = document.createElement('tr');
+                const monThi = tổHợpInfo[combo] ? tổHợpInfo[combo].join(', ') : 'N/A';
+                row.innerHTML = `
+                    <td><strong>${combo}</strong></td>
+                    <td>${monThi}</td>
+                    <td>${score}</td>
+                    <td><a href="#" class="btn-convert" data-combo="${combo}" data-score="${score}">Quy đổi</a></td>
+                `;
+                comboScoresBody.appendChild(row);
+            }
+
+            resultContainer.style.display = 'block';
+            conversionSection.style.display = 'none';
+
+        } catch (error) {
+            showAlert(error.message);
+        } finally {
+            spinner.style.display = 'none';
+        }
+    });
+
+    comboScoresBody.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('btn-convert')) {
+            e.preventDefault();
+            const combo = e.target.dataset.combo;
+            const score = e.target.dataset.score;
+
+            sourceComboInfo.textContent = `${score} điểm tổ hợp ${combo}`;
+            
+            const formData = new FormData();
+            formData.append('ma_to_hop', combo);
+            formData.append('diem', score);
+
+            try {
+                const response = await fetch('/quy-doi', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Lỗi quy đổi.');
+                }
+
+                conversionBody.innerHTML = '';
+                for (const [key, value] of Object.entries(data)) {
+                    if (key !== 'STT') {
+                        const row = document.createElement('tr');
+                        const monThi = tổHợpInfo[key] ? `(${tổHợpInfo[key].join(', ')})` : ''; 
+                        row.innerHTML = `
+                            <td>
+                                <strong>${key}</strong> 
+                                <small class="text-muted">${monThi}</small>
+                            </td>
+                            <td>${value}</td>
+                        `;
+                        conversionBody.appendChild(row);
+                    }
+                }
+                conversionSection.style.display = 'block';
+                conversionSection.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                showAlert(error.message);
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
