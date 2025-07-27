@@ -37,15 +37,26 @@ top_students_cache = {"data": None, "timestamp": 0}
 # ==============================================================================
 
 def tinh_diem_to_hop_cho_df(df):
-    """Tính điểm tất cả các tổ hợp cho toàn bộ DataFrame."""
+    """
+    Tính điểm tất cả các tổ hợp cho toàn bộ DataFrame.
+    Chỉ tính tổng khi thí sinh có đủ điểm ở CẢ BA môn của tổ hợp.
+    """
     df_result = df.copy()
     for combo, subjects in TỔ_HỢP_XÉT_TUYỂN.items():
         # Kiểm tra xem các cột môn học có tồn tại không
         if all(sub in df_result.columns for sub in subjects):
-            # Chuyển đổi các cột sang dạng số, lỗi sẽ thành NaN
-            numeric_subjects = df_result[subjects].apply(pd.to_numeric, errors='coerce')
-            # Chỉ tính tổng cho các hàng không có NaN
-            df_result[combo] = numeric_subjects.sum(axis=1).round(2)
+            # Tạo một DataFrame tạm chỉ chứa điểm các môn của khối
+            combo_df = df_result[subjects].apply(pd.to_numeric, errors='coerce')
+            
+            # --- LOGIC MỚI QUAN TRỌNG ---
+            # Dùng .dropna() để loại bỏ tất cả các hàng có ít nhất một môn bị thiếu điểm (NaN)
+            # Sau đó mới tính tổng trên các hàng hợp lệ đó.
+            valid_scores = combo_df.dropna()
+            
+            # Tính tổng và gán lại vào DataFrame kết quả
+            # Các hàng bị drop sẽ có giá trị NaN trong cột tổng điểm này
+            df_result[combo] = valid_scores.sum(axis=1).round(2)
+            
     return df_result
 
 def tra_cuu_diem_tuong_duong(ma_to_hop_goc, diem_goc):
