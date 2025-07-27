@@ -14,12 +14,24 @@
         .chart-container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 2rem; height: 100%; }
         .tab-content { padding-top: 1rem; }
         .chart-wrapper { position: relative; height: 400px; }
+        header, footer {
+            background-color: #0d6efd;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer a {
+        color: #ffd43b;
+        }
     </style>
 </head>
 <body>
+    
     <div class="container mt-4">
+        
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-primary">Dashboard Phân Tích Điểm Thi</h1>
+            <h1 class="text-primary">Dashboard Phân Tích Điểm Thi Cụm TPHCM</h1>
             <a href="/" class="btn btn-secondary">Quay lại trang tra cứu</a>
         </div>
         
@@ -90,6 +102,9 @@
             </div>
         </div>
     </div>
+    <footer>
+        <p>© 2025 DiemThiTHPT | Phát triển bởi <a href="https://github.com/namnamka" target="_blank">namnamka</a></p>
+    </footer>
 
 <script>
 let distributionChart = null; 

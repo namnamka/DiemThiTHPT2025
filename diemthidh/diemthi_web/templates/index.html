@@ -1,114 +1,154 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu & Quy đổi điểm thi</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body { background-color: #f8f9fa; }
-        .container { max-width: 900px; margin-top: 30px; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        .result-section { margin-top: 2rem; }
-        .loading-spinner { display: none; }
-        .table thead th { background-color: #007bff; color: white; }
-        .conversion-table td:first-child { font-weight: bold; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tra cứu & Quy đổi điểm thi Cụm TPHCM</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <style>
+    html, body {
+      height: 100%;
+      background-color: #f4f6f9;
+    }
 
-        /* CSS CHO BẢNG QUY ĐỔI */
-        #conversion-section h4 {
-            color: #28a745; 
-        }
-        .conversion-table thead th {
-            background-color: #28a745; 
-        }
-        .conversion-table tbody tr:hover {
-            background-color: #e9f5ec; 
-        }
-        .conversion-table td:last-child {
-            font-weight: bold;
-            color: #dc3545; 
-        }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* --- CSS MỚI CHO NÚT "QUY ĐỔI" --- */
-        .btn-convert {
-            background-color: #17a2b8; /* Màu xanh ngọc */
-            color: white;
-            padding: 5px 12px;
-            border-radius: 5px;
-            text-decoration: none; /* Bỏ gạch chân */
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
-        }
+    main {
+      flex: 1;
+    }
 
-        .btn-convert:hover {
-            background-color: #138496; /* Màu xanh ngọc đậm hơn khi hover */
-            color: white;
-            text-decoration: none;
-            transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi hover */
-        }
-        /* --- KẾT THÚC CSS MỚI --- */
-    </style>
+    .container {
+      max-width: 800px;
+      background: #fff;
+      padding: 40px;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    header, footer {
+      background-color: #0d6efd;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    footer a {
+      color: #ffd43b;
+    }
+
+    .btn-convert {
+      background-color: #17a2b8;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 0.9em;
+      transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+    }
+
+    .btn-convert:hover {
+      background-color: #138496;
+      transform: scale(1.05);
+    }
+
+    .conversion-table td:last-child {
+      font-weight: bold;
+      color: #dc3545;
+    }
+
+    .conversion-table thead th {
+      background-color: #198754;
+      color: white;
+    }
+
+    .table thead th {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    #conversion-section h4 {
+      color: #198754;
+    }
+
+    .conversion-table tbody tr:hover {
+      background-color: #e9f5ec;
+    }
+
+    .loading-spinner {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center mb-4">Tra cứu & Quy đổi điểm thi</h1>
-        
-        <!-- Form tra cứu -->
-        <form id="search-form" class="form-inline justify-content-center">
-            <div class="form-group mb-2">
-                <label for="sbd" class="sr-only">Số báo danh</label>
-                <input type="text" class="form-control" id="sbd" placeholder="Nhập số báo danh" required>
-            </div>
-            <button type="submit" class="btn btn-primary mb-2 ml-2">
-                <span class="loading-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Tìm kiếm
-            </button>
-        </form>
 
-        <!-- === NÚT MỚI ĐỂ ĐI ĐẾN DASHBOARD === -->
-        <div class="text-center mt-3 mb-3">
-            <a href="/dashboard" class="btn btn-outline-success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
-                    <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z"/>
-                </svg>
-                Xem Dashboard Phân Tích Toàn Cảnh
-            </a>
-        </div>
-        <!-- === KẾT THÚC NÚT MỚI === -->
+<header>
+  <h2>🎓 Hệ thống Tra cứu & Quy đổi điểm THPT Quốc gia 2025 Cụm TPHCM</h2>
+</header>
 
-        <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+<main>
+  <div class="container">
+    <h1 class="text-center mb-4">Tra cứu & Quy đổi điểm thi</h1>
 
-        <!-- Khu vực hiển thị kết quả -->
-        <div id="result-container" class="result-section" style="display: none;">
-            <!-- Điểm các môn -->
-            <div id="student-scores-section">
-                <h4 class="text-info">1. Điểm thi chi tiết</h4>
-                <div id="student-scores-table"></div>
-            </div>
+    <!-- FORM -->
+    <form id="search-form" class="form-inline justify-content-center">
+      <div class="form-group mb-2">
+        <label for="sbd" class="sr-only">Số báo danh</label>
+        <input type="text" class="form-control" id="sbd" placeholder="Nhập số báo danh" required />
+      </div>
+      <button type="submit" class="btn btn-primary mb-2 ml-2">
+        <span class="loading-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Tìm kiếm
+      </button>
+    </form>
 
-            <!-- Điểm các tổ hợp -->
-            <div id="combo-scores-section" class="mt-4">
-                <h4 class="text-info">2. Điểm các tổ hợp có thể xét tuyển</h4>
-                <table class="table table-striped">
-                    <thead><tr><th>Tổ hợp</th><th>Môn</th><th>Điểm</th><th>Hành động</th></tr></thead>
-                    <tbody id="combo-scores-body"></tbody>
-                </table>
-            </div>
-
-            <!-- Bảng quy đổi điểm -->
-            <div id="conversion-section" class="mt-4" style="display: none;">
-                <h4 class="text-success">3. Bảng điểm tương đương</h4>
-                <p>Điểm của các tổ hợp khác tương đương với <strong id="source-combo-info"></strong>:</p>
-                <table class="table table-hover conversion-table">
-                    <thead><tr><th>Tổ hợp</th><th>Điểm tương đương</th></tr></thead>
-                    <tbody id="conversion-body"></tbody>
-                </table>
-            </div>
-        </div>
+    <!-- DASHBOARD BUTTON -->
+    <div class="text-center mt-3 mb-3">
+      <a href="/dashboard" class="btn btn-outline-success">
+        📊 Xem Dashboard Phân Tích Toàn Cảnh
+      </a>
     </div>
 
+    <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+
+    <!-- RESULT -->
+    <div id="result-container" class="result-section" style="display: none;">
+      <div id="student-scores-section">
+        <h4 class="text-info">1. Điểm thi chi tiết</h4>
+        <div id="student-scores-table"></div>
+      </div>
+
+      <div id="combo-scores-section" class="mt-4">
+        <h4 class="text-info">2. Điểm các tổ hợp có thể xét tuyển</h4>
+        <table class="table table-striped">
+          <thead>
+            <tr><th>Tổ hợp</th><th>Môn</th><th>Điểm</th><th>Hành động</th></tr>
+          </thead>
+          <tbody id="combo-scores-body"></tbody>
+        </table>
+      </div>
+
+      <div id="conversion-section" class="mt-4" style="display: none;">
+        <h4 class="text-success">3. Bảng điểm tương đương</h4>
+        <p>Điểm của các tổ hợp khác tương đương với <strong id="source-combo-info"></strong>:</p>
+        <table class="table table-hover conversion-table">
+          <thead><tr><th>Tổ hợp</th><th>Điểm tương đương</th></tr></thead>
+          <tbody id="conversion-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 DiemThiTHPT | Phát triển bởi <a href="https://github.com/namnamka" target="_blank">namnamka</a></p>
+</footer>
+
 <script>
-// JavaScript không cần thay đổi gì cả, giữ nguyên như cũ
 document.addEventListener('DOMContentLoaded', function() {
     const searchForm = document.getElementById('search-form');
     const sbdInput = document.getElementById('sbd');
@@ -202,10 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const row = document.createElement('tr');
                         const monThi = tổHợpInfo[key] ? `(${tổHợpInfo[key].join(', ')})` : ''; 
                         row.innerHTML = `
-                            <td>
-                                <strong>${key}</strong> 
-                                <small class="text-muted">${monThi}</small>
-                            </td>
+                            <td><strong>${key}</strong> <small class="text-muted">${monThi}</small></td>
                             <td>${value}</td>
                         `;
                         conversionBody.appendChild(row);
@@ -221,5 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 </body>
 </html>
