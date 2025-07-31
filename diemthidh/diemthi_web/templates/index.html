@@ -82,12 +82,150 @@
     .loading-spinner {
       display: none;
     }
+
+    .ranking-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .ranking-card h5 {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .ranking-stats {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ranking-stat {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 12px;
+      border-radius: 5px;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .ranking-stat .label {
+      font-size: 0.8em;
+      opacity: 0.9;
+    }
+
+    .ranking-stat .value {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .rank-badge {
+      background: #28a745;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+
+    .ranking-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .ranking-card h5 {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .ranking-stats {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ranking-stat {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 12px;
+      border-radius: 5px;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .ranking-stat .label {
+      font-size: 0.8em;
+      opacity: 0.9;
+    }
+
+    .ranking-stat .value {
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .rank-badge {
+      background: #28a745;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
   </style>
 </head>
+
+<style>
+/* Print styles */
+@media print {
+  header, footer, .btn, .modal { display: none !important; }
+  .container { box-shadow: none; margin: 0; max-width: 100%; }
+  body { background: white; }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container { padding: 20px; margin: 10px; }
+  .ranking-stats { flex-direction: column; }
+  .ranking-stat { min-width: 100%; margin-bottom: 5px; }
+  header h2 { font-size: 1.2rem; }
+  .form-inline { flex-direction: column; }
+  .form-inline .form-group, .form-inline .btn { width: 100%; margin: 5px 0; }
+}
+
+/* Animation cho loading */
+.fade-in { animation: fadeIn 0.5s ease-in; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
 <body>
 
 <header>
-  <h2>🎓 Hệ thống Tra cứu & Quy đổi điểm THPT Quốc gia 2025 Cụm TPHCM</h2>
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-10">
+        <h2>🎓 Hệ thống Tra cứu & Quy đổi điểm THPT Quốc gia 2025 Cụm TPHCM</h2>
+        <p class="mb-0"><small>📊 Phân tích ranking chi tiết • 🔄 Quy đổi điểm tự động • 📈 Dashboard thống kê</small></p>
+      </div>
+      <div class="col-md-2 text-right">
+        <button class="btn btn-outline-light btn-sm" onclick="showHelp()">
+          <i class="fas fa-question-circle"></i> Hướng dẫn
+        </button>
+      </div>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -98,13 +236,31 @@
     <form id="search-form" class="form-inline justify-content-center">
       <div class="form-group mb-2">
         <label for="sbd" class="sr-only">Số báo danh</label>
-        <input type="text" class="form-control" id="sbd" placeholder="Nhập số báo danh" required />
+        <input type="text" class="form-control" id="sbd" placeholder="Nhập số báo danh (VD: 01234567)" required />
       </div>
       <button type="submit" class="btn btn-primary mb-2 ml-2">
         <span class="loading-spinner spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Tìm kiếm
+        🔍 Tìm kiếm
+      </button>
+      <button type="button" class="btn btn-outline-secondary mb-2 ml-2" onclick="clearForm()">
+        🗑️ Xóa
       </button>
     </form>
+
+    <!-- QUICK ACCESS -->
+    <div class="text-center mt-2 mb-3">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-info btn-sm" onclick="showRandomStudent()">
+          🎲 Xem ngẫu nhiên
+        </button>
+        <button type="button" class="btn btn-outline-warning btn-sm" onclick="showHistory()">
+          📚 Lịch sử tra cứu
+        </button>
+        <button type="button" class="btn btn-outline-success btn-sm" onclick="showComparison()">
+          ⚖️ So sánh thí sinh
+        </button>
+      </div>
+    </div>
 
     <!-- DASHBOARD BUTTON -->
     <div class="text-center mt-3 mb-3">
@@ -118,7 +274,17 @@
     <!-- RESULT -->
     <div id="result-container" class="result-section" style="display: none;">
       <div id="student-scores-section">
-        <h4 class="text-info">1. Điểm thi chi tiết</h4>
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="text-info">1. Điểm thi chi tiết</h4>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-success btn-sm" onclick="shareResults()">
+              📤 Chia sẻ
+            </button>
+            <button class="btn btn-outline-primary btn-sm" onclick="printResults()">
+              🖨️ In kết quả
+            </button>
+          </div>
+        </div>
         <div id="student-scores-table"></div>
       </div>
 
@@ -126,17 +292,22 @@
         <h4 class="text-info">2. Điểm các tổ hợp có thể xét tuyển</h4>
         <table class="table table-striped">
           <thead>
-            <tr><th>Tổ hợp</th><th>Môn</th><th>Điểm</th><th>Hành động</th></tr>
+            <tr><th>Tổ hợp</th><th>Môn</th><th>Điểm</th><th>Xếp hạng</th><th>Hành động</th></tr>
           </thead>
           <tbody id="combo-scores-body"></tbody>
         </table>
       </div>
 
+      <div id="ranking-section" class="mt-4" style="display: none;">
+        <h4 class="text-warning">3. Phân tích xếp hạng chi tiết</h4>
+        <div id="ranking-details"></div>
+      </div>
+
       <div id="conversion-section" class="mt-4" style="display: none;">
-        <h4 class="text-success">3. Bảng điểm tương đương</h4>
+        <h4 class="text-success">4. Bảng điểm tương đương</h4>
         <p>Điểm của các tổ hợp khác tương đương với <strong id="source-combo-info"></strong>:</p>
         <table class="table table-hover conversion-table">
-          <thead><tr><th>Tổ hợp</th><th>Điểm tương đương</th></tr></thead>
+          <thead><tr><th>Tổ hợp</th><th>Điểm tương đương</th><th>Xếp hạng ước tính</th></tr></thead>
           <tbody id="conversion-body"></tbody>
         </table>
       </div>
@@ -144,9 +315,78 @@
   </div>
 </main>
 
+<!-- Modal Hướng dẫn -->
+<div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📖 Hướng dẫn sử dụng</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6>🔍 Tra cứu điểm</h6>
+            <ul>
+              <li>Nhập số báo danh 8 chữ số</li>
+              <li>Xem điểm chi tiết từng môn</li>
+              <li>Kiểm tra ranking theo khối</li>
+            </ul>
+            
+            <h6>🔄 Quy đổi điểm</h6>
+            <ul>
+              <li>Click "Quy đổi" ở tổ hợp bất kỳ</li>
+              <li>Xem điểm tương đương các khối khác</li>
+              <li>So sánh ranking ước tính</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>📊 Dashboard</h6>
+            <ul>
+              <li>Thống kê toàn cụm TPHCM</li>
+              <li>Phổ điểm từng môn</li>
+              <li>Top thí sinh xuất sắc</li>
+            </ul>
+            
+            <h6>💡 Mẹo sử dụng</h6>
+            <ul>
+              <li>Bookmark trang để tra cứu nhanh</li>
+              <li>Sử dụng trên điện thoại</li>
+              <li>Chia sẻ kết quả với bạn bè</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Lịch sử -->
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📚 Lịch sử tra cứu</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="history-list">
+          <p class="text-muted">Chưa có lịch sử tra cứu nào.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-sm" onclick="clearHistory()">Xóa tất cả</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
   <p>© 2025 DiemThiTHPT | Phát triển bởi <a href="https://github.com/namnamka" target="_blank">namnamka</a></p>
 </footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -159,6 +399,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const conversionSection = document.getElementById('conversion-section');
     const conversionBody = document.getElementById('conversion-body');
     const sourceComboInfo = document.getElementById('source-combo-info');
+    const rankingSection = document.getElementById('ranking-section');
+    const rankingDetails = document.getElementById('ranking-details');
     const spinner = document.querySelector('.loading-spinner');
 
     const tổHợpInfo = JSON.parse('{{ TỔ_HỢP | tojson | safe }}');
@@ -176,6 +418,8 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         hideAlert();
         resultContainer.style.display = 'none';
+        conversionSection.style.display = 'none';
+        rankingSection.style.display = 'none';
         spinner.style.display = 'inline-block';
 
         const formData = new FormData();
@@ -197,13 +441,31 @@ document.addEventListener('DOMContentLoaded', function() {
             for (const [combo, score] of sortedCombos) {
                 const row = document.createElement('tr');
                 const monThi = tổHợpInfo[combo] ? tổHợpInfo[combo].join(', ') : 'N/A';
+                
+                // Lấy thông tin ranking
+                const rankInfo = data.ranking_info && data.ranking_info[combo];
+                let rankingText = '';
+                if (rankInfo) {
+                    rankingText = `<span class="rank-badge">${rankInfo.ranking}/${rankInfo.tong_so_thi_sinh}</span><br>
+                                   <small>(Top ${rankInfo.phan_tram}%)</small>`;
+                } else {
+                    rankingText = '<span class="text-muted">N/A</span>';
+                }
+                
                 row.innerHTML = `
                     <td><strong>${combo}</strong></td>
                     <td>${monThi}</td>
                     <td>${score}</td>
+                    <td>${rankingText}</td>
                     <td><a href="#" class="btn-convert" data-combo="${combo}" data-score="${score}">Quy đổi</a></td>
                 `;
                 comboScoresBody.appendChild(row);
+            }
+
+            // Hiển thị phần ranking chi tiết
+            if (data.ranking_info && Object.keys(data.ranking_info).length > 0) {
+                displayRankingDetails(data.ranking_info);
+                rankingSection.style.display = 'block';
             }
 
             resultContainer.style.display = 'block';
@@ -241,9 +503,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (key !== 'STT') {
                         const row = document.createElement('tr');
                         const monThi = tổHợpInfo[key] ? `(${tổHợpInfo[key].join(', ')})` : ''; 
+                        
+                        // Tính toán ranking ước tính cho điểm quy đổi
+                        let estimatedRankingText = '<span class="text-muted">Đang tính...</span>';
+                        
+                        // Gọi API để tính ranking cho điểm quy đổi
+                        fetch('/estimate-ranking', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                            body: `ma_to_hop=${key}&diem=${value}`
+                        })
+                        .then(res => res.json())
+                        .then(rankData => {
+                            if (rankData.ranking) {
+                                const rankCell = row.querySelector('.rank-estimate');
+                                rankCell.innerHTML = `<span class="rank-badge">${rankData.ranking}/${rankData.tong_so_thi_sinh}</span><br>
+                                                     <small>(Top ${rankData.phan_tram}%)</small>`;
+                            }
+                        })
+                        .catch(() => {
+                            const rankCell = row.querySelector('.rank-estimate');
+                            rankCell.innerHTML = '<span class="text-muted">N/A</span>';
+                        });
+                        
                         row.innerHTML = `
                             <td><strong>${key}</strong> <small class="text-muted">${monThi}</small></td>
                             <td>${value}</td>
+                            <td class="rank-estimate">${estimatedRankingText}</td>
                         `;
                         conversionBody.appendChild(row);
                     }
@@ -256,6 +542,148 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    function displayRankingDetails(rankingInfo) {
+        rankingDetails.innerHTML = '';
+        
+        for (const [combo, info] of Object.entries(rankingInfo)) {
+            const monThi = tổHợpInfo[combo] ? tổHợpInfo[combo].join(', ') : 'N/A';
+            
+            const rankingCard = document.createElement('div');
+            rankingCard.className = 'ranking-card';
+            rankingCard.innerHTML = `
+                <h5>${combo} - ${info.diem} điểm <small>(${monThi})</small></h5>
+                <div class="ranking-stats">
+                    <div class="ranking-stat">
+                        <div class="label">Xếp hạng</div>
+                        <div class="value">${info.ranking}</div>
+                    </div>
+                    <div class="ranking-stat">
+                        <div class="label">Tổng thí sinh</div>
+                        <div class="value">${info.tong_so_thi_sinh}</div>
+                    </div>
+                    <div class="ranking-stat">
+                        <div class="label">Cao hơn bạn</div>
+                        <div class="value">${info.so_nguoi_cao_hon}</div>
+                    </div>
+                    <div class="ranking-stat">
+                        <div class="label">Bằng điểm bạn</div>
+                        <div class="value">${info.so_nguoi_bang_nhau}</div>
+                    </div>
+                    <div class="ranking-stat">
+                        <div class="label">Vượt qua</div>
+                        <div class="value">${(100 - info.phan_tram).toFixed(1)}%</div>
+                    </div>
+                </div>
+            `;
+            rankingDetails.appendChild(rankingCard);
+        }
+    }
+});
+
+// Các hàm tiện ích mới
+function showHelp() {
+    $('#helpModal').modal('show');
+}
+
+function clearForm() {
+    document.getElementById('sbd').value = '';
+    document.getElementById('result-container').style.display = 'none';
+    document.getElementById('error-message').style.display = 'none';
+}
+
+function showHistory() {
+    const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    const historyList = document.getElementById('history-list');
+    
+    if (history.length === 0) {
+        historyList.innerHTML = '<p class="text-muted">Chưa có lịch sử tra cứu nào.</p>';
+    } else {
+        historyList.innerHTML = history.map(item => 
+            `<div class="d-flex justify-content-between align-items-center mb-2">
+                <span><strong>${item.sbd}</strong> - ${new Date(item.time).toLocaleString('vi-VN')}</span>
+                <button class="btn btn-sm btn-outline-primary" onclick="searchFromHistory('${item.sbd}')">Tra cứu lại</button>
+            </div>`
+        ).join('');
+    }
+    $('#historyModal').modal('show');
+}
+
+function searchFromHistory(sbd) {
+    document.getElementById('sbd').value = sbd;
+    $('#historyModal').modal('hide');
+    document.getElementById('search-form').dispatchEvent(new Event('submit'));
+}
+
+function clearHistory() {
+    localStorage.removeItem('searchHistory');
+    showHistory();
+}
+
+function saveToHistory(sbd) {
+    const history = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    const newEntry = { sbd, time: new Date().toISOString() };
+    
+    // Loại bỏ duplicate và giữ tối đa 10 record
+    const filteredHistory = history.filter(item => item.sbd !== sbd);
+    filteredHistory.unshift(newEntry);
+    
+    localStorage.setItem('searchHistory', JSON.stringify(filteredHistory.slice(0, 10)));
+}
+
+function showRandomStudent() {
+    // Tạo SBD ngẫu nhiên trong khoảng từ 02000001 đến 02098499
+    const minSBD = 2000001;
+    const maxSBD = 2098499;
+    const randomNum = Math.floor(Math.random() * (maxSBD - minSBD + 1)) + minSBD;
+    const randomSBD = randomNum.toString().padStart(8, '0');
+    
+    document.getElementById('sbd').value = randomSBD;
+    document.getElementById('search-form').dispatchEvent(new Event('submit'));
+}
+
+function showComparison() {
+    alert('Tính năng so sánh sẽ được phát triển trong phiên bản tiếp theo! 🚀');
+}
+
+// Cập nhật hàm search để lưu lịch sử
+const originalSubmitHandler = document.getElementById('search-form').onsubmit;
+document.getElementById('search-form').addEventListener('submit', function(e) {
+    const sbd = document.getElementById('sbd').value.trim();
+    if (sbd) {
+        saveToHistory(sbd);
+    }
+});
+
+function shareResults() {
+    const sbd = document.getElementById('sbd').value;
+    const url = `${window.location.origin}?sbd=${sbd}`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Điểm thi THPT Quốc gia 2025',
+            text: `Kết quả thi của SBD ${sbd}`,
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('📋 Link chia sẻ đã được sao chép!');
+        });
+    }
+}
+
+function printResults() {
+    window.print();
+}
+
+// Tự động tra cứu nếu có SBD trong URL
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sbd = urlParams.get('sbd');
+    if (sbd) {
+        document.getElementById('sbd').value = sbd;
+        document.getElementById('search-form').dispatchEvent(new Event('submit'));
+    }
 });
 </script>
 
